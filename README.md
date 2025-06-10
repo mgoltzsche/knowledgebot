@@ -9,12 +9,17 @@ Run the docker compose project (requires docker and compose to be installed):
 make compose-up
 ```
 
-## Usage
+Download the required AI models into the ollama volume:
+```sh
+make pull-models
+```
 
-Import data into the qdrant:
+Import data into the qdrant vector database:
 ```sh
 make crawl-wikipedia-futurama
 ```
+
+## Usage
 
 Browse the web app at [`http://localhost:8080`](http://localhost:8080) and enter your question, e.g. "What are the main Futurama characters?".
 
