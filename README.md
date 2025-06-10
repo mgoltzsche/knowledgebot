@@ -16,7 +16,9 @@ Import data into the qdrant:
 make crawl-wikipedia-futurama
 ```
 
-Ask a question:
+Browse the web app at [`http://localhost:8080`](http://localhost:8080) and enter your question, e.g. "What are the main Futurama characters?".
+
+Alternatively, submit your question to the API:
 ```sh
 curl http://localhost:8080/api/qna?q='What%20are%20the%20main%20characters%20within%20the%20TV%20series%20Futurama?'
 ```

@@ -1,3 +1,80 @@
-<html>
-<h1>knowledgebot</h1>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="./logo.png" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <title>Knowledge Bot</title>
+  </head>
+  <body>
+    <main>
+      <h1><img src="./logo.png" style="height:1.1em; position:relative; top:-0.14em; margin: 0 0.3em 0 0;" />Knowledge Bot</h1>
+      <form onsubmit="startSSE(); return false;" id="qna">
+        <fieldset role="group">
+          <input name="q" placeholder="Ask me anything" id="question" />
+          <!--<input type="submit" value="Send" />-->
+          <button type="submit" form="qna" value="Submit" aria-busy="false" id="submit-btn">Send</button>
+        </fieldset>
+      </form>
+      <div id="links"></div>
+      <div id="error" style="color:red;"></div>
+      <div id="answer"></div>
+    </main>
+    <script>
+      let eventSource;
+
+      function startSSE() {
+        console.log('Requesting answer from server');
+
+        if (eventSource) {
+          eventSource.close();
+        }
+
+        const question = document.getElementById('question').value;
+        const submitButton = document.getElementById('submit-btn');
+        const linksElement = document.getElementById('links');
+        const outputElement = document.getElementById('answer');
+
+        submitButton.setAttribute('aria-busy', 'true');
+        linksElement.innerHTML = '';
+        outputElement.innerHTML = '';
+        let markdownResponse = '';
+
+        eventSource = new EventSource(`/api/qna?q=${encodeURIComponent(question)}`);
+
+        eventSource.onmessage = function(event) {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.sources) {
+              let links = '';
+              for (const src of data.sources) {
+                links += `<li><a href="${src.url}">${src.title}</a> (${src.maxScore})</li>`;
+              }
+              linksElement.innerHTML = `<h2>Sources</h2><ul>${links}</ul>`;
+            }
+            if (data.chunk) {
+              console.log('received chunk:', data.chunk);
+              markdownResponse += data.chunk;
+
+              try {
+                outputElement.innerHTML = `<h2>AI Response</h2>${marked.parse(markdownResponse)}`;
+              } catch(e) {
+                console.error('Failed to parse response markup:', e);
+              }
+            }
+          } catch (e) {
+            console.error('Failed to parse response chunk:', e);
+          }
+        };
+
+        eventSource.onerror = function(e) {
+          console.error('SSE error', e);
+          submitButton.setAttribute('aria-busy', 'false');
+          eventSource.close();
+        };
+      }
+    </script>
+  </body>
 </html>
