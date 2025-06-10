@@ -20,7 +20,7 @@ wipe-data: ## Delete volumes.
 
 pull-models: ## Download models.
 	@set -ex; \
-	for MODEL in all-minilm qwen3:8b; do \
+	for MODEL in all-minilm qwen2.5:3b; do \
 		if ! docker compose exec ollama ollama show $$MODEL >/dev/null; then \
 			docker compose exec ollama ollama pull $$MODEL; \
 		fi \
