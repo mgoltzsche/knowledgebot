@@ -29,6 +29,7 @@ type ResponseChunk struct {
 type SourceReference struct {
 	URL      string    `json:"url"`
 	Title    string    `json:"title"`
+	MaxScore float32   `json:"maxScore"`
 	Snippets []Snippet `json:"snippets,omitempty"`
 }
 
@@ -46,7 +47,7 @@ func (w *QuestionAnswerWorkflow) Answer(ctx context.Context, question string) (<
 	sourceRefs := searchResultsToSourceRefs(docs)
 
 	ch := make(chan ResponseChunk)
-	prompt := buildPrompt(question, docs)
+	prompt := buildPrompt(docs)
 
 	log.Println("Requesting LLM answer for prompt:\n  ", strings.ReplaceAll(prompt, "\n", "\n  "))
 
@@ -58,7 +59,10 @@ func (w *QuestionAnswerWorkflow) Answer(ctx context.Context, question string) (<
 		}
 
 		_, err := w.LLM.GenerateContent(ctx,
-			[]llms.MessageContent{llms.TextParts(llms.ChatMessageTypeSystem, prompt)},
+			[]llms.MessageContent{
+				llms.TextParts(llms.ChatMessageTypeSystem, prompt),
+				llms.TextParts(llms.ChatMessageTypeHuman, question),
+			},
 			llms.WithStreamingFunc(w.streamFunc(ch)),
 			llms.WithTemperature(w.Temperature),
 		)
@@ -81,7 +85,7 @@ func (w *QuestionAnswerWorkflow) streamFunc(ch chan<- ResponseChunk) func(ctx co
 }
 
 func searchResultsToSourceRefs(docs []schema.Document) []SourceReference {
-	urlMap := make(map[string]SourceReference, len(docs))
+	urlMap := make(map[string]*SourceReference, len(docs))
 	urls := make([]string, 0, len(docs))
 
 	for _, doc := range docs {
@@ -99,7 +103,7 @@ func searchResultsToSourceRefs(docs []schema.Document) []SourceReference {
 
 		ref, ok := urlMap[urlKey]
 		if !ok {
-			ref = SourceReference{
+			ref = &SourceReference{
 				URL:      urlKey,
 				Title:    title,
 				Snippets: make([]Snippet, 0, 1),
@@ -112,21 +116,25 @@ func searchResultsToSourceRefs(docs []schema.Document) []SourceReference {
 			Text:  doc.PageContent,
 			Score: doc.Score,
 		})
+
+		if doc.Score > ref.MaxScore {
+			ref.MaxScore = doc.Score
+		}
 	}
 
 	refs := make([]SourceReference, len(urls))
 	for i, key := range urls {
-		refs[i] = urlMap[key]
+		refs[i] = *urlMap[key]
 	}
 
 	return refs
 }
 
-func buildPrompt(question string, docs []schema.Document) string {
+func buildPrompt(docs []schema.Document) string {
 	related := make([]string, len(docs))
 	for i, doc := range docs {
 		related[i] = doc.PageContent
 	}
 
-	return fmt.Sprintf("You are a helpful assistant.\n\n%s\n\nAnswer the following user question short and concise:\n\n%s", strings.Join(related, "\n\n"), question)
+	return fmt.Sprintf("You are a helpful assistant.\n\nAnswer the user's questions short and concise based on the following information:%s\n\n.", strings.Join(related, "\n\n"))
 }

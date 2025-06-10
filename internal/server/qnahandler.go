@@ -34,9 +34,7 @@ func newQuestionAnswerHandler(ai *qna.QuestionAnswerWorkflow) http.Handler {
 		setHeaders(w.Header())
 
 		for chunk := range ch {
-			eventType := "chunk"
 			if chunk.Err != nil {
-				eventType = "error"
 				chunk.Err = exposedError(chunk.Err.Error())
 			}
 
@@ -46,7 +44,10 @@ func newQuestionAnswerHandler(ai *qna.QuestionAnswerWorkflow) http.Handler {
 				continue
 			}
 
-			fmt.Fprintf(w, "event: %s\n", eventType)
+			if chunk.Err != nil {
+				fmt.Fprintln(w, "event: error")
+			}
+
 			fmt.Fprintf(w, "data: %s\n\n", string(data))
 
 			if flusher, ok := w.(http.Flusher); ok {
@@ -66,9 +67,10 @@ func setHeaders(h http.Header) {
 	h.Set("Content-Type", "text/event-stream")
 	h.Set("Transfer-Encoding", "chunked")
 	h.Set("X-Accel-Buffering", "no") // tell reverse proxy not to buffer
+	h.Set("Connection", "keep-alive")
 
 	// Set headers to prevent the client from caching
-	h.Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	h.Set("Cache-Control", "no-cache")
 	h.Set("Pragma", "no-cache")
 	h.Set("Expires", "0")
 }

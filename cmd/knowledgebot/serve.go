@@ -22,8 +22,9 @@ var (
 	listenAddr     = ":8080"
 	scoreThreshold = 0.8
 	workflow       = &qna.QuestionAnswerWorkflow{
-		Temperature: 0.7,
-		MaxDocs:     15,
+		Temperature:    0.7,
+		MaxDocs:        15,
+		ScoreThreshold: 0.7,
 	}
 	routes = server.Routes{
 		WebDir:   "/var/lib/knowledgebot/ui",
