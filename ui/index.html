@@ -7,6 +7,28 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <title>Knowledge Bot</title>
+    <style type="text/css">
+      #link-list {
+        padding: 0;
+      }
+      #link-list li {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+      }
+      #link-list li:hover {
+        background: #fafafa;
+      }
+      #link-list li details {
+        margin: 0;
+      }
+      #link-list li summary {
+        padding: 0.5em 0.2em;
+      }
+      #link-list li summary::after {
+        float: left;
+      }
+    </style>
   </head>
   <body>
     <main>
@@ -14,12 +36,10 @@
       <form onsubmit="startSSE(); return false;" id="qna">
         <fieldset role="group">
           <input name="q" placeholder="Ask me anything" id="question" />
-          <!--<input type="submit" value="Send" />-->
           <button type="submit" form="qna" value="Submit" aria-busy="false" id="submit-btn">Send</button>
         </fieldset>
       </form>
       <div id="links"></div>
-      <div id="error" style="color:red;"></div>
       <div id="answer"></div>
     </main>
     <script>
@@ -50,9 +70,21 @@
             if (data.sources) {
               let links = '';
               for (const src of data.sources) {
-                links += `<li><a href="${src.url}">${src.title}</a> (${src.maxScore})</li>`;
+                let snippets = '';
+                for (const snippet of src.snippets) {
+                  snippets += `<li><pre>${snippet.text}</pre> (score: ${snippet.score})</li>`;
+                }
+
+                links += `<li>
+                  <details>
+                    <summary>
+                      <a href="${src.url}">${src.title}</a> (${src.maxScore})
+                    </summary>
+                    <ul>${snippets}</ul>
+                  </details>
+                </li>`;
               }
-              linksElement.innerHTML = `<h2>Sources</h2><ul>${links}</ul>`;
+              linksElement.innerHTML = `<h2>Sources</h2><ul id="link-list">${links}</ul>`;
             }
             if (data.chunk) {
               console.log('received chunk:', data.chunk);
