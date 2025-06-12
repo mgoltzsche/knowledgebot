@@ -16,7 +16,6 @@ import (
 var (
 	tmpl string = `
 You are an AI knowledge bot whose purpose is to help users deepen their understanding of a specific topic.
-You will receive prefiltered, relevant data (similarity results from a vector database) to support your task.
 Your domain expertise is the TV show “Futurama,” and you can assume that all user questions relate to this topic.
 
 Role:
@@ -71,8 +70,12 @@ func (w *QuestionAnswerWorkflow) Answer(ctx context.Context, question string) (<
 	sourceRefs := searchResultsToSourceRefs(docs)
 
 	ch := make(chan ResponseChunk)
-	prompt := buildPrompt(docs)
+	prompt, err := buildPrompt(docs)
 
+	if err != nil {
+		return nil, err
+	}
+	
 	log.Println("Requesting LLM answer for prompt:\n  ", strings.ReplaceAll(prompt, "\n", "\n  "))
 
 	go func() {
@@ -154,7 +157,7 @@ func searchResultsToSourceRefs(docs []schema.Document) []SourceReference {
 	return refs
 }
 
-func buildPrompt(docs []schema.Document) string {
+func buildPrompt(docs []schema.Document) (string,error) {
 	related := make([]string, len(docs))
 	for i, doc := range docs {
 		related[i] = doc.PageContent
@@ -164,8 +167,8 @@ func buildPrompt(docs []schema.Document) string {
 		"sources": strings.Join(related, "\n\n"),
 	})
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
-	return result
+	return result, nil
 }
