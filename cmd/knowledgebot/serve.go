@@ -20,12 +20,11 @@ var (
 		RunE:    runServer,
 		PreRunE: preRunServer,
 	}
-	listenAddr     = ":8080"
-	scoreThreshold = 0.8
-	workflow       = &qna.QuestionAnswerWorkflow{
+	listenAddr = ":8080"
+	workflow   = &qna.QuestionAnswerWorkflow{
 		Temperature:    0.7,
 		MaxDocs:        15,
-		ScoreThreshold: 0.7,
+		ScoreThreshold: 0.5,
 	}
 	routes = server.Routes{
 		WebDir:   "/var/lib/knowledgebot/ui",
@@ -57,7 +56,7 @@ func init() {
 	f.StringVar(&routes.WebDir, "web-dir", routes.WebDir, "Path to the web UI directory")
 	f.Float64Var(&workflow.Temperature, "temperature", workflow.Temperature, "LLM temperature")
 	f.IntVar(&workflow.MaxDocs, "max-docs", workflow.MaxDocs, "Maximum number of document chunks to lookup from vector database")
-	f.Float64Var(&scoreThreshold, "score-threshold", scoreThreshold, "vector database lookup score threshold")
+	f.Float64Var(&workflow.ScoreThreshold, "score-threshold", workflow.ScoreThreshold, "vector database lookup score threshold")
 	llmFactory.AddLLMFlags(f)
 	storeFactory.AddStoreFlags(f)
 
