@@ -96,7 +96,12 @@ func (s *Crawler) processHTML(ctx context.Context, url *url.URL, html string, ch
 		return fmt.Errorf("html to markdown: %w", err)
 	}
 
-	splitter := textsplitter.NewMarkdownTextSplitter()
+	markdown = stripMarkdownLinks(markdown)
+
+	splitter := textsplitter.NewMarkdownTextSplitter(
+		textsplitter.WithChunkSize(768),
+		textsplitter.WithChunkOverlap(175),
+	)
 
 	chunks, err := splitter.SplitText(markdown)
 	if err != nil {
