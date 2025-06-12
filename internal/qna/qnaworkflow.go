@@ -75,7 +75,7 @@ func (w *QuestionAnswerWorkflow) Answer(ctx context.Context, question string) (<
 	if err != nil {
 		return nil, err
 	}
-	
+
 	log.Println("Requesting LLM answer for prompt:\n  ", strings.ReplaceAll(prompt, "\n", "\n  "))
 
 	go func() {
@@ -167,7 +167,7 @@ func buildPrompt(docs []schema.Document) (string,error) {
 		"sources": strings.Join(related, "\n\n"),
 	})
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("formatting promt template: %w",err)
 	}
 
 	return result, nil
