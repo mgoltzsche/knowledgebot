@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"regexp"
 	"strings"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 
 type Crawler struct {
 	MaxDepth int
+	URLRegex *regexp.Regexp
 	Sink     vectorstores.VectorStore
 }
 
@@ -42,9 +44,18 @@ func (s *Crawler) crawl(ctx context.Context, seedURL *url.URL, ch chan<- []schem
 	defer close(ch)
 
 	domain := strings.TrimPrefix(seedURL.Host, "www.")
-	c := colly.NewCollector(
+	opts := []func(*colly.Collector){
 		colly.MaxDepth(s.MaxDepth),
-	)
+		colly.AllowedDomains(seedURL.Hostname(), domain),
+		colly.DetectCharset(),
+		colly.UserAgent("knowledgebot"),
+	}
+
+	if s.URLRegex != nil {
+		opts = append(opts, colly.URLFilters(s.URLRegex))
+	}
+
+	c := colly.NewCollector(opts...)
 
 	c.OnRequest(func(req *colly.Request) {
 		select {
@@ -65,19 +76,7 @@ func (s *Crawler) crawl(ctx context.Context, seedURL *url.URL, ch chan<- []schem
 	})
 
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
-		href := e.Attr("href")
-		u, err := url.Parse(href)
-		if err != nil {
-			log.Println("WARNING: invalid href:", err)
-
-			return
-		}
-
-		u = e.Request.URL.ResolveReference(u)
-
-		if strings.HasSuffix(u.Host, domain) {
-			e.Request.Visit(href)
-		}
+		e.Request.Visit(e.Attr("href"))
 	})
 
 	c.Visit(seedURL.String())
@@ -108,6 +107,10 @@ func processHTML(ctx context.Context, url *url.URL, html string, ch chan<- []sch
 			docs[i] = schema.Document{
 				PageContent: chunk,
 				Metadata: map[string]any{
+					// TODO: deduplicate URLs:
+					// * save final redirect location instead of redirect source URL (to get rid of single-character URLs pointing to list of all Futurama characters URL).
+					// * ignore URLs that don't follow the scheme https://en.wikipedia.org/wiki/<ARTICLE>
+					// * (maybe keep track of content hashes and ignore duplicate contents)
 					"url":   url.String(),
 					"title": deriveTitle(markdown, url),
 				},

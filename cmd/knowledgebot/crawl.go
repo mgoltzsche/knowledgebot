@@ -1,6 +1,8 @@
 package main
 
 import (
+	"regexp"
+
 	"github.com/mgoltzsche/knowledgebot/internal/importer/crawler"
 	"github.com/spf13/cobra"
 )
@@ -23,6 +25,7 @@ func init() {
 	f := crawlCmd.Flags()
 
 	f.IntVar(&crawl.MaxDepth, "max-depth", crawl.MaxDepth, "Maximum crawl depth")
+	f.Var((*urlRegexFlag)(&crawl), "url-regex", "regex to filter URLs to crawl")
 	storeFactory.AddLLMFlags(f)
 	storeFactory.AddStoreFlags(f)
 
@@ -47,4 +50,29 @@ func crawlWebsite(cmd *cobra.Command, args []string) error {
 	}
 
 	return crawl.Crawl(cmd.Context(), args[0])
+}
+
+type urlRegexFlag crawler.Crawler
+
+func (f *urlRegexFlag) Set(s string) error {
+	r, err := regexp.Compile(s)
+	if err != nil {
+		return err
+	}
+
+	f.URLRegex = r
+
+	return nil
+}
+
+func (f *urlRegexFlag) Type() string {
+	return "regex"
+}
+
+func (f *urlRegexFlag) String() string {
+	if f.URLRegex == nil {
+		return ""
+	}
+
+	return f.URLRegex.String()
 }

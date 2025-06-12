@@ -29,11 +29,12 @@ pull-models: ## Download models.
 crawl: MAX_DEPTH?=2
 crawl: URL?=https://app.readytensor.ai/hubs/ready_tensor_certifications
 crawl: ## Crawl a website.
-	docker compose exec knowledgebot /knowledgebot crawl "$(URL)" --max-depth=$(MAX_DEPTH)
+	docker compose exec knowledgebot /knowledgebot crawl "$(URL)" --max-depth=$(MAX_DEPTH) --url-regex="$(URL_REGEX)"
 
-crawl-wikipedia-futurama: MAX_DEPTH=1
+crawl-wikipedia-futurama: MAX_DEPTH?=2
+crawl-wikipedia-futurama: URL_REGEX=^https://en.wikipedia.org/wiki/([^:]+|[^:]:_.+)$
 crawl-wikipedia-futurama:
-	make crawl URL=https://en.wikipedia.org/wiki/Futurama MAX_DEPTH=$(MAX_DEPTH)
+	make crawl URL=https://en.wikipedia.org/wiki/Futurama MAX_DEPTH=$(MAX_DEPTH) URL_REGEX="$(URL_REGEX)"
 
 ##@ General
 

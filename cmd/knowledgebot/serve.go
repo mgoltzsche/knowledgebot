@@ -16,6 +16,7 @@ var (
 		Use:     "serve",
 		Short:   "Run the web server",
 		Long:    `Run the web server.`,
+		Args:    cobra.ExactArgs(0),
 		RunE:    runServer,
 		PreRunE: preRunServer,
 	}
