@@ -8,8 +8,32 @@ import (
 	"strings"
 
 	"github.com/tmc/langchaingo/llms"
+	"github.com/tmc/langchaingo/prompts"
 	"github.com/tmc/langchaingo/schema"
 	"github.com/tmc/langchaingo/vectorstores"
+)
+
+var (
+	tmpl string = `
+You are an AI knowledge bot whose purpose is to help users deepen their understanding of a specific topic.
+You will receive prefiltered, relevant data (similarity results from a vector database) to support your task.
+Your domain expertise is the TV show “Futurama,” and you can assume that all user questions relate to this topic.
+
+Role:
+- You are a helpful assistant.
+- Answer the user’s questions briefly and concisely.
+- Use simple, everyday language and avoid unnecessary technical details.
+- When deeper explanations are required, ask follow-up questions to clarify the user’s needs.
+
+Here is the related data for the user’s question:
+{{ .sources }}
+	`
+
+	promptTemplate prompts.PromptTemplate = prompts.PromptTemplate{
+		Template:       tmpl,
+		InputVariables: []string{"sources"},
+		TemplateFormat: prompts.TemplateFormatGoTemplate,
+	}
 )
 
 type QuestionAnswerWorkflow struct {
@@ -136,5 +160,12 @@ func buildPrompt(docs []schema.Document) string {
 		related[i] = doc.PageContent
 	}
 
-	return fmt.Sprintf("You are a helpful assistant.\n\nAnswer the user's questions short and concise based on the following information:%s\n\n.", strings.Join(related, "\n\n"))
+	result, err := promptTemplate.Format(map[string]any{
+		"sources": strings.Join(related, "\n\n"),
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return result
 }
