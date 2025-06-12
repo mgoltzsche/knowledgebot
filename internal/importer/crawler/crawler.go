@@ -2,10 +2,14 @@ package crawler
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"net/url"
+	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	htmltomarkdown "github.com/JohannesKaufmann/html-to-markdown/v2"
@@ -16,8 +20,11 @@ import (
 )
 
 type Crawler struct {
-	MaxDepth int
-	Sink     vectorstores.VectorStore
+	MaxDepth         int
+	URLRegex         *regexp.Regexp
+	Sink             vectorstores.VectorStore
+	mutex            sync.Mutex
+	knownChunkHashes map[string]struct{}
 }
 
 func (s *Crawler) Crawl(ctx context.Context, seedURL string) error {
@@ -42,9 +49,18 @@ func (s *Crawler) crawl(ctx context.Context, seedURL *url.URL, ch chan<- []schem
 	defer close(ch)
 
 	domain := strings.TrimPrefix(seedURL.Host, "www.")
-	c := colly.NewCollector(
+	opts := []func(*colly.Collector){
 		colly.MaxDepth(s.MaxDepth),
-	)
+		colly.AllowedDomains(seedURL.Hostname(), domain),
+		colly.DetectCharset(),
+		colly.UserAgent("knowledgebot"),
+	}
+
+	if s.URLRegex != nil {
+		opts = append(opts, colly.URLFilters(s.URLRegex))
+	}
+
+	c := colly.NewCollector(opts...)
 
 	c.OnRequest(func(req *colly.Request) {
 		select {
@@ -58,26 +74,14 @@ func (s *Crawler) crawl(ctx context.Context, seedURL *url.URL, ch chan<- []schem
 	})
 
 	c.OnResponse(func(f *colly.Response) {
-		err := processHTML(ctx, f.Request.URL, string(f.Body), ch)
+		err := s.processHTML(ctx, f.Request.URL, string(f.Body), ch)
 		if err != nil {
 			log.Println("WARNING:", err)
 		}
 	})
 
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
-		href := e.Attr("href")
-		u, err := url.Parse(href)
-		if err != nil {
-			log.Println("WARNING: invalid href:", err)
-
-			return
-		}
-
-		u = e.Request.URL.ResolveReference(u)
-
-		if strings.HasSuffix(u.Host, domain) {
-			e.Request.Visit(href)
-		}
+		e.Request.Visit(e.Attr("href"))
 	})
 
 	c.Visit(seedURL.String())
@@ -86,7 +90,7 @@ func (s *Crawler) crawl(ctx context.Context, seedURL *url.URL, ch chan<- []schem
 	return ctx.Err()
 }
 
-func processHTML(ctx context.Context, url *url.URL, html string, ch chan<- []schema.Document) error {
+func (s *Crawler) processHTML(ctx context.Context, url *url.URL, html string, ch chan<- []schema.Document) error {
 	markdown, err := htmltomarkdown.ConvertString(html)
 	if err != nil {
 		return fmt.Errorf("html to markdown: %w", err)
@@ -101,23 +105,48 @@ func processHTML(ctx context.Context, url *url.URL, html string, ch chan<- []sch
 
 	log.Printf("scraped %d chunks from %s", len(chunks), url)
 
-	if len(chunks) > 0 {
-		docs := make([]schema.Document, len(chunks))
+	docs := make([]schema.Document, 0, len(chunks))
 
-		for i, chunk := range chunks {
-			docs[i] = schema.Document{
-				PageContent: chunk,
-				Metadata: map[string]any{
-					"url":   url.String(),
-					"title": deriveTitle(markdown, url),
-				},
-			}
+	for _, chunk := range chunks {
+		if s.knownChunk(chunk) {
+			continue
 		}
 
+		docs = append(docs, schema.Document{
+			PageContent: chunk,
+			Metadata: map[string]any{
+				"url":   url.String(),
+				"title": deriveTitle(markdown, url),
+			},
+		})
+	}
+
+	if len(docs) > 0 {
 		ch <- docs
 	}
 
 	return nil
+}
+
+func (s *Crawler) knownChunk(chunk string) bool {
+	h := sha256.New()
+	_, _ = h.Write([]byte(chunk))
+	b := h.Sum(nil)
+	key := hex.EncodeToString(b)
+
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	if s.knownChunkHashes == nil {
+		s.knownChunkHashes = map[string]struct{}{}
+	}
+
+	_, known := s.knownChunkHashes[key]
+	if !known {
+		s.knownChunkHashes[key] = struct{}{}
+	}
+
+	return known
 }
 
 func deriveTitle(markdown string, u *url.URL) string {

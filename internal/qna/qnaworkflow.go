@@ -17,7 +17,7 @@ type QuestionAnswerWorkflow struct {
 	Temperature    float64
 	Store          vectorstores.VectorStore
 	MaxDocs        int
-	ScoreThreshold float32
+	ScoreThreshold float64
 }
 
 type ResponseChunk struct {
@@ -39,7 +39,7 @@ type Snippet struct {
 }
 
 func (w *QuestionAnswerWorkflow) Answer(ctx context.Context, question string) (<-chan ResponseChunk, error) {
-	docs, err := w.Store.SimilaritySearch(ctx, question, w.MaxDocs, vectorstores.WithScoreThreshold(w.ScoreThreshold))
+	docs, err := w.Store.SimilaritySearch(ctx, question, w.MaxDocs, vectorstores.WithScoreThreshold(float32(w.ScoreThreshold)))
 	if err != nil {
 		return nil, fmt.Errorf("query knowledge base: %w", err)
 	}
