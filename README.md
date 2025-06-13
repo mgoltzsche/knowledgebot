@@ -55,6 +55,7 @@ To download the required LLMs into the Ollama volume, run:
 ```sh
 make pull-models
 ```
+(Depending on your internet connection the model download takes 5 minutes or longer.)
 
 ## Usage
 
@@ -142,8 +143,9 @@ KnowledgeBot implements a classic RAG pipeline:
 
 ## Performance
 
-- Fast semantic search via Qdrant
-- LLM inference speed depends on your hardware and selected model
+- Fast semantic search via Qdrant.
+- LLM inference speed depends on your hardware and selected model.
+  On a modern workstation that meets the [prerequisites](#prerequisites), the response latency ranges from a few seconds up to a minute.
 
 ## License
 
