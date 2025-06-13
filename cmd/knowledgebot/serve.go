@@ -57,8 +57,8 @@ func init() {
 	f.StringVar(&routes.WebDir, "web-dir", routes.WebDir, "Path to the web UI directory")
 	f.StringVar(&workflow.Topic, "topic", workflow.Topic, "The topic used in the promtTemplate")
 	f.Float64Var(&workflow.Temperature, "temperature", workflow.Temperature, "LLM temperature")
-	f.IntVar(&workflow.MaxDocs, "max-docs", workflow.MaxDocs, "Maximum number of document chunks to lookup from vector database")
-	f.Float64Var(&workflow.ScoreThreshold, "score-threshold", workflow.ScoreThreshold, "vector database lookup score threshold")
+	f.IntVar(&workflow.MaxDocs, "max-docs", workflow.MaxDocs, "Maximum number of document chunks to retrieve from qdrant")
+	f.Float64Var(&workflow.ScoreThreshold, "score-threshold", workflow.ScoreThreshold, "qdrant lookup score threshold")
 	llmFactory.AddLLMFlags(f)
 	storeFactory.AddStoreFlags(f)
 
