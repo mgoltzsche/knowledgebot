@@ -1,9 +1,14 @@
-FROM golang:1.24.4-alpine3.22 AS build
+FROM golang:1.24.4-alpine3.22 AS builddeps
 COPY go.mod go.sum /build/
 WORKDIR /build
 RUN go mod download
 COPY cmd /build/cmd
 COPY internal /build/internal
+
+FROM builddeps AS test
+RUN go test ./...
+
+FROM builddeps AS build
 RUN go build -o knowledgebot -ldflags "-s -w -extldflags \"-static\"" ./cmd/knowledgebot
 
 FROM alpine:3.22
