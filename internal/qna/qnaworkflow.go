@@ -157,7 +157,7 @@ func searchResultsToSourceRefs(docs []schema.Document) []SourceReference {
 	return refs
 }
 
-func buildPrompt(docs []schema.Document) (string,error) {
+func buildPrompt(docs []schema.Document) (string, error) {
 	related := make([]string, len(docs))
 	for i, doc := range docs {
 		related[i] = doc.PageContent
@@ -167,7 +167,7 @@ func buildPrompt(docs []schema.Document) (string,error) {
 		"sources": strings.Join(related, "\n\n"),
 	})
 	if err != nil {
-		return "", fmt.Errorf("formatting promt template: %w",err)
+		return "", fmt.Errorf("formatting promt template: %w", err)
 	}
 
 	return result, nil
