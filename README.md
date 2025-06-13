@@ -103,14 +103,13 @@ You can also query the API directly:
 curl "http://localhost:8080/api/qna?q=What%20are%20the%20main%20Futurama%20characters?"
 ```
 
-The `/api/qna` endpoint returns a stream of [Server-Sent Events (SSE)](https://en.wikipedia.org/wiki/Server-sent_events) with structured JSON:
+The `/api/qna` endpoint returns a stream of [Server-Sent Events (SSE)](https://en.wikipedia.org/wiki/Server-sent_events) with structured JSON, e.g.:
 
 ```
 {"sources": [{"url": "...", "title": "...", "snippets": [{"text": "...", "score": 0.753}]}]}
 {"chunk": "The main characters"}
 {"chunk": " in Futurama include"}
 {"chunk": " Fry, Leela, Bender and others."}
-...
 ```
 
 ### Example questions
@@ -200,7 +199,7 @@ KnowledgeBot implements a classic RAG pipeline within a Go service, using the Qd
 
 ## Limitations
 
-The RAG approach comes with some general limitations:
+The RAG approach comes with some limitations:
 * Sometimes the LLM fails to mention important information within its response even though it was retrieved from the vector database and provided to it.
 * Trade-off: Fewer vector database results and smaller chunks are faster to process by the LLM but may lack important information. Using bigger chunks and more result documents on the other hand provide more information but may as well contain a lot of irrelevant information (lowering the vector database's matching score) and result in less performant but more expensive and energy-intensive processing.
 
@@ -210,8 +209,8 @@ This project is licensed under the [Apache 2.0 License](LICENSE).
 
 ## Contributing
 
-Contributions are welcome! Please open issues or pull requests.
+Contributions are welcome! Please feel free to open issues or pull requests.
 
-## Contact
+## Contact & Support
 
 For questions or support, please open an issue on GitHub.
