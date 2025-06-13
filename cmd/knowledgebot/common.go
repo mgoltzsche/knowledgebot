@@ -22,8 +22,8 @@ type LLMFactory struct {
 }
 
 func (f *LLMFactory) AddLLMFlags(fs *pflag.FlagSet) {
-	fs.StringVar(&f.APIURL, "openai-url", f.APIURL, "URL pointing to the OpenAI API server that runs the LLM")
-	fs.StringVar(&f.APIKey, "openai-key", f.APIKey, "URL pointing to the OpenAI API server that runs the LLM")
+	fs.StringVar(&f.APIURL, "openai-url", f.APIURL, "URL pointing to the OpenAI LLM API server")
+	fs.StringVar(&f.APIKey, "openai-key", f.APIKey, "API key for the OpenAI LLM API")
 	fs.StringVar(&f.Model, "model", f.Model, "LLM model to use")
 }
 

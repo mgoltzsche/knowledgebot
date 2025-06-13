@@ -40,7 +40,6 @@ func parseFlagsWithEnvVars(fs *pflag.FlagSet, envVarPrefix string) error {
 
 	fs.VisitAll(func(f *pflag.Flag) {
 		envVarName := envVarPrefix + strings.ToUpper(strings.ReplaceAll(f.Name, "-", "_"))
-		f.Usage = fmt.Sprintf("%s (%s)", f.Usage, envVarName)
 		if envVarValue := os.Getenv(envVarName); envVarValue != "" && !f.Changed {
 			e := f.Value.Set(envVarValue)
 			if e != nil && err == nil {
