@@ -25,6 +25,7 @@ var (
 		Temperature:    0.7,
 		MaxDocs:        15,
 		ScoreThreshold: 0.5,
+		Topic:          "The TV show Futurama",
 	}
 	routes = server.Routes{
 		WebDir:   "/var/lib/knowledgebot/ui",
@@ -54,6 +55,7 @@ func init() {
 
 	f.StringVar(&listenAddr, "listen", listenAddr, "Address the server should listen on")
 	f.StringVar(&routes.WebDir, "web-dir", routes.WebDir, "Path to the web UI directory")
+	f.StringVar(&workflow.Topic, "topic", workflow.Topic, "The topic used in the promtTemplate")
 	f.Float64Var(&workflow.Temperature, "temperature", workflow.Temperature, "LLM temperature")
 	f.IntVar(&workflow.MaxDocs, "max-docs", workflow.MaxDocs, "Maximum number of document chunks to lookup from vector database")
 	f.Float64Var(&workflow.ScoreThreshold, "score-threshold", workflow.ScoreThreshold, "vector database lookup score threshold")
