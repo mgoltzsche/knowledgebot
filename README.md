@@ -22,6 +22,14 @@ KnowledgeBot enables you to index web content or Wikipedia articles into a vecto
 - Researchers and students interested in RAG systems
 - Anyone wanting to build a local, private Q&A bot over custom data
 
+## Current State Gap Identification
+While numerous AI-powered question answering systems exist, many rely on cloud-based LLMs and proprietary vector databases, raising concerns about data privacy, cost, and control. 
+Existing solutions often require complex setup, lack transparency, or do not support fully local deployments.
+KnowledgeBot addresses these gaps by providing an open-source, fully containerized RAG pipeline that runs entirely on local hardware, using open components like Ollama and Qdrant.
+This approach empowers users to build private, domain-specific Q&A bots without exposing sensitive data to third parties. 
+However, the current implementation does not yet support advanced features such as incremental data updates, fine-grained access control, or integration with non-web data sources (e.g., PDFs, Office documents). 
+Future work should address these limitations and further benchmark KnowledgeBot against state-of-the-art RAG systems.
+
 ## Prerequisites
 
 - [Docker](https://docs.docker.com/engine/install/) as well as its [compose plugin](https://docs.docker.com/compose/install/) installed
