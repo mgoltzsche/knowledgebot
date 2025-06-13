@@ -16,7 +16,7 @@ import (
 var (
 	tmpl string = `
 You are an AI knowledge bot whose purpose is to help users deepen their understanding of a specific topic.
-Your domain expertise is the TV show “Futurama,” and you can assume that all user questions relate to this topic.
+Your domain expertise is "{{.topic}}" and you can assume that all user questions relate to this topic.
 
 Role:
 - You are a helpful assistant.
@@ -41,6 +41,7 @@ type QuestionAnswerWorkflow struct {
 	Store          vectorstores.VectorStore
 	MaxDocs        int
 	ScoreThreshold float64
+	Topic          string
 }
 
 type ResponseChunk struct {
@@ -70,6 +71,11 @@ func (w *QuestionAnswerWorkflow) Answer(ctx context.Context, question string) (<
 	sourceRefs := searchResultsToSourceRefs(docs)
 
 	ch := make(chan ResponseChunk)
+
+	promptTemplate.PartialVariables = map[string]any{
+		"topic": w.Topic,
+	}
+
 	prompt, err := buildPrompt(docs)
 
 	if err != nil {
