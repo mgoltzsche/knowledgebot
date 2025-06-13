@@ -13,7 +13,7 @@ user -d-> knowledgebot : 3. Ask question
 
 knowledgebot --> ollama : 4. Convert question to\nvector (embedding)
 knowledgebot -l-> qdrant: 5. Find similar content\nchunks for given vector
-knowledgebot --> ollama: 6. Request AI answer for\ngiven user question and\nretrieved content chunks
+knowledgebot --> ollama: 6. Request LLM answer for\ngiven user question and\nretrieved content chunks
 
 '' Layout fixes
 ollama -[hidden]- qdrant
