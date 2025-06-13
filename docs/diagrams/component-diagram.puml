@@ -1,0 +1,21 @@
+@startuml
+
+actor "User" as user
+component "KnowledgeBot\nweb app" as knowledgebot
+component "KnowledgeBot\ncrawler CLI" as crawler
+component "Qdrant\n(vector database)" as qdrant
+component "Ollama\n(local LLM runner)" as ollama
+
+crawler --> ollama : 1. Split web contents into chunks &\nconvert each to vectors (embeddings)
+crawler -> qdrant : 2. Index web content chunks\nunder their vectors
+
+user -d-> knowledgebot : 3. Ask question
+
+knowledgebot --> ollama : 4. Convert question to\nvector (embedding)
+knowledgebot -l-> qdrant: 5. Find similar content\nchunks for given vector
+knowledgebot --> ollama: 6. Request AI answer for\ngiven user question and\nretrieved content chunks
+
+'' Layout fixes
+ollama -[hidden]- qdrant
+
+@enduml

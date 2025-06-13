@@ -39,6 +39,9 @@ crawl-wikipedia-futurama: URL_REGEX=^https://en.wikipedia.org/wiki/([^:]+|[^:]:_
 crawl-wikipedia-futurama: ## Crawl Futurama-related Wikipedia pages.
 	make crawl URL=https://en.wikipedia.org/wiki/Futurama MAX_DEPTH=$(MAX_DEPTH) URL_REGEX="$(URL_REGEX)"
 
+render-diagrams: ## Render PNGs from PlantUML diagrams.
+	docker run --rm -v "`pwd`/docs/diagrams:/data" plantuml/plantuml:1.2025 *.puml
+
 ##@ General
 
 help: ## Display this help.
