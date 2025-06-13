@@ -9,6 +9,9 @@ container: ## Build the container image.
 
 ##@ Development
 
+test: ## Run unit tests.
+	docker build --rm -t $(IMAGE) --target=test .
+
 compose-up: container ## Run the compose project.
 	docker compose up
 
@@ -26,15 +29,18 @@ pull-models: ## Download models.
 		fi \
 	done
 
-crawl: MAX_DEPTH?=2
+crawl: MAX_DEPTH?=1
 crawl: URL?=https://app.readytensor.ai/hubs/ready_tensor_certifications
 crawl: ## Crawl a website.
 	docker compose exec knowledgebot /knowledgebot crawl "$(URL)" --max-depth=$(MAX_DEPTH) --url-regex="$(URL_REGEX)"
 
 crawl-wikipedia-futurama: MAX_DEPTH?=2
 crawl-wikipedia-futurama: URL_REGEX=^https://en.wikipedia.org/wiki/([^:]+|[^:]:_.+)$
-crawl-wikipedia-futurama:
+crawl-wikipedia-futurama: ## Crawl Futurama-related Wikipedia pages.
 	make crawl URL=https://en.wikipedia.org/wiki/Futurama MAX_DEPTH=$(MAX_DEPTH) URL_REGEX="$(URL_REGEX)"
+
+render-diagrams: ## Render PNGs from PlantUML diagrams.
+	docker run --rm -v "`pwd`/docs/diagrams:/data" plantuml/plantuml:1.2025 *.puml
 
 ##@ General
 
