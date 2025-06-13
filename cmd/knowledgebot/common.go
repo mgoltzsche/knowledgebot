@@ -45,8 +45,8 @@ type StoreFactory struct {
 }
 
 func (f *StoreFactory) AddStoreFlags(fs *pflag.FlagSet) {
-	fs.StringVar(&f.EmbeddingModel, "embedding-model", f.EmbeddingModel, "Embedding model dimensions")
-	fs.IntVar(&f.EmbeddingDimensions, "embedding-dimensions", f.EmbeddingDimensions, "LLM embedding model to use")
+	fs.StringVar(&f.EmbeddingModel, "embedding-model", f.EmbeddingModel, "Embedding model to use")
+	fs.IntVar(&f.EmbeddingDimensions, "embedding-dimensions", f.EmbeddingDimensions, "LLM embedding model dimensions")
 	fs.StringVar(&f.QdrantURL, "qdrant-url", f.QdrantURL, "LLM model to use")
 	fs.StringVar(&f.QdrantCollection, "qdrant-collection", f.QdrantCollection, "LLM model to use")
 }
