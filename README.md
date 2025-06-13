@@ -73,18 +73,20 @@ With 100Mbit/s the download takes around 5 minutes.
 
 Before you can use the web app you need to populate the vector database with useful data about the topic you want the AI to answer questions about.
 
-To crawl and embed a website or Wikipedia page, use the provided Makefile targets. For example, to crawl the Wikipedia page for Futurama:
+To crawl and embed a website or Wikipedia page, use the provided Makefile targets.
+For example, to crawl 100 Futurama-related Wikipedia pages, run:
 
 ```sh
 make crawl-wikipedia-futurama
 ```
+(Takes around 2.5 minutes.)
 
 To crawl a custom site:
 ```sh
-make crawl URL=https://example.com MAX_DEPTH=2
+make crawl URL=https://example.com MAX_DEPTH=2 MAX_PAGES=100
 ```
 
-You can adjust `URL` and `MAX_DEPTH` as needed.
+You can adjust `URL`, `MAX_DEPTH` and `MAX_PAGES` as needed.
 
 ### Web UI
 

@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	htmltomarkdown "github.com/JohannesKaufmann/html-to-markdown/v2"
@@ -21,6 +22,7 @@ import (
 
 type Crawler struct {
 	MaxDepth         int
+	MaxPages         uint64
 	URLRegex         *regexp.Regexp
 	Sink             vectorstores.VectorStore
 	mutex            sync.Mutex
@@ -28,6 +30,8 @@ type Crawler struct {
 }
 
 func (s *Crawler) Crawl(ctx context.Context, seedURL string) error {
+	log.Printf("crawling %s with maxDepth=%d, maxPages=%d and urlRegex=%s", seedURL, s.MaxDepth, s.MaxPages, s.URLRegex)
+
 	startTime := time.Now()
 
 	u, err := url.Parse(seedURL)
@@ -48,6 +52,7 @@ func (s *Crawler) Crawl(ctx context.Context, seedURL string) error {
 func (s *Crawler) crawl(ctx context.Context, seedURL *url.URL, ch chan<- []schema.Document) error {
 	defer close(ch)
 
+	pageCounter := atomic.Uint64{}
 	domain := strings.TrimPrefix(seedURL.Host, "www.")
 	opts := []func(*colly.Collector){
 		colly.MaxDepth(s.MaxDepth),
@@ -68,6 +73,13 @@ func (s *Crawler) crawl(ctx context.Context, seedURL *url.URL, ch chan<- []schem
 			req.Abort()
 			return
 		default:
+		}
+
+		if s.MaxPages > 0 {
+			if pageCounter.Add(1) > s.MaxPages {
+				req.Abort()
+				return
+			}
 		}
 
 		log.Println("visiting", req.URL)

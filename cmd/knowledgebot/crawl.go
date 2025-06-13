@@ -25,6 +25,7 @@ func init() {
 	f := crawlCmd.Flags()
 
 	f.IntVar(&crawl.MaxDepth, "max-depth", crawl.MaxDepth, "Maximum crawl depth")
+	f.Uint64Var(&crawl.MaxPages, "max-pages", crawl.MaxPages, "Maximum amount of pages to crawl")
 	f.Var((*urlRegexFlag)(&crawl), "url-regex", "regex to filter URLs to crawl")
 	storeFactory.AddLLMFlags(f)
 	storeFactory.AddStoreFlags(f)
