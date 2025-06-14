@@ -158,7 +158,7 @@ Corresponding to the CLI options, the following environment variables are suppor
 | `KLB_EMBEDDING_DIMENSIONS` | `384` | LLM embedding model dimensions |
 | `KLB_EMBEDDING_MODEL` | `all-minilm` | Embedding model to use |
 | `KLB_LISTEN` | `:8080` | Address the server should listen on |
-| `KLB_MAX_DOCS` | `15` | Maximum number of document chunks to retrieve from qdrant <
+| `KLB_MAX_DOCS` | `15` | Maximum number of document chunks to retrieve from qdrant |
 | `KLB_MODEL` | `qwen2.5:3b` | LLM model to use for question answering |
 | `KLB_OPENAI_KEY` |  | API key for the OpenAI LLM API |
 | `KLB_OPENAI_URL` | `http://ollama:11434` | URL pointing to the OpenAI LLM API server |
@@ -166,7 +166,13 @@ Corresponding to the CLI options, the following environment variables are suppor
 | `KLB_QDRANT__URL` | `http://qdrant:6333` | URL pointing to the Qdrant server |
 | `KLB_SCORE_THRESHOLD` | `0.5` | Qdrant document match score |
 | `KLB_TOPIC` | `The TV show Futurama` | Topic that is injected into the system prompt |
+| `KLB_TEMPERATURE` | `0.7` | LLM temperature |
 
+Crawler-specific environment variables:
+
+| `KLB_MAX_DEPTH` | 1 | Maximum crawl depth |
+| `KLB_MAX_PAGES` | 0 | Maximum number of pages to crawl (infinite by default) |
+| `KLB_URL_REGEX` |  | Regex to filter URLs |
 
 ## Technical Implementation Details
 
