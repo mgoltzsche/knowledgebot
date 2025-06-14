@@ -24,6 +24,8 @@ type Crawler struct {
 	MaxDepth         int
 	MaxPages         uint64
 	URLRegex         *regexp.Regexp
+	ChunkSize        int
+	ChunkOverlap     int
 	Sink             vectorstores.VectorStore
 	mutex            sync.Mutex
 	knownChunkHashes map[string]struct{}
@@ -111,8 +113,8 @@ func (s *Crawler) processHTML(ctx context.Context, url *url.URL, html string, ch
 	markdown = stripMarkdownLinks(markdown)
 
 	splitter := textsplitter.NewMarkdownTextSplitter(
-		textsplitter.WithChunkSize(768),
-		textsplitter.WithChunkOverlap(175),
+		textsplitter.WithChunkSize(s.ChunkSize),
+		textsplitter.WithChunkOverlap(s.ChunkOverlap),
 	)
 
 	chunks, err := splitter.SplitText(markdown)

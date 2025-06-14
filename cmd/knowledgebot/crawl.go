@@ -17,7 +17,9 @@ var (
 		Args:    cobra.ExactArgs(1),
 	}
 	crawl = crawler.Crawler{
-		MaxDepth: 1,
+		MaxDepth:     1,
+		ChunkSize:    768,
+		ChunkOverlap: 175,
 	}
 )
 
@@ -27,6 +29,8 @@ func init() {
 	f.IntVar(&crawl.MaxDepth, "max-depth", crawl.MaxDepth, "Maximum crawl depth")
 	f.Uint64Var(&crawl.MaxPages, "max-pages", crawl.MaxPages, "Maximum amount of pages to crawl")
 	f.Var((*urlRegexFlag)(&crawl), "url-regex", "regex to filter URLs to crawl")
+	f.IntVar(&crawl.ChunkSize, "chunk-size", crawl.ChunkSize, "Chunk size")
+	f.IntVar(&crawl.ChunkOverlap, "chunk-overlap", crawl.ChunkOverlap, "Chunk overlap")
 	storeFactory.AddLLMFlags(f)
 	storeFactory.AddStoreFlags(f)
 

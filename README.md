@@ -170,9 +170,13 @@ Corresponding to the CLI options, the following environment variables are suppor
 
 Crawler-specific environment variables:
 
-| `KLB_MAX_DEPTH` | 1 | Maximum crawl depth |
-| `KLB_MAX_PAGES` | 0 | Maximum number of pages to crawl (infinite by default) |
+| Name  | Default  | Description |
+| ----- | -------- | ----------- |
+| `KLB_MAX_DEPTH` | `1` | Maximum crawl depth |
+| `KLB_MAX_PAGES` | `0` | Maximum number of pages to crawl (infinite by default) |
 | `KLB_URL_REGEX` |  | Regex to filter URLs |
+| `KLB_CHUNK_SIZE` | `768` | Chunk size |
+| `KLB_CHUNK_OVERLAP` | `175` | Chunk overlap |
 
 ## Technical Implementation Details
 
