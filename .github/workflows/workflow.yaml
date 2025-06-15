@@ -32,7 +32,7 @@ jobs:
       name: Prepare release
       uses: mgoltzsche/conventional-release@v0
       with:
-        commit-files: compose.yaml,VERSION
+        commit-files: compose.yaml VERSION
         github-release-files: compose.yaml
         ignore-commits-before: a0a3c294b3be797b831100c0b405a923e15239de
 
