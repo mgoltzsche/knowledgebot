@@ -36,7 +36,7 @@ Here is the related data for the user’s question:
 )
 
 type QuestionAnswerWorkflow struct {
-	LLM            llms.LLM
+	LLM            llms.Model
 	Temperature    float64
 	Store          vectorstores.VectorStore
 	MaxDocs        int

@@ -1,0 +1,71 @@
+name: Build
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+concurrency: # Run release builds sequentially, cancel outdated PR builds
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions: # Grant write access to github.token within non-pull_request builds
+  contents: write
+  packages: write
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        persist-credentials: false
+
+    - id: release
+      name: Prepare release
+      uses: mgoltzsche/conventional-release@v0
+      with:
+        commit-files: compose.yaml,VERSION
+        ignore-commits-before: a0a3c294b3be797b831100c0b405a923e15239de
+
+    - name: Set up qemu
+      if: steps.release.outputs.publish
+      uses: docker/setup-qemu-action@v3
+      with:
+        platforms: all
+
+    - name: Run unit tests
+      run: |
+        make test
+
+    - name: Run linter
+      run: |
+        make lint
+
+    - name: Build
+      if: '!steps.release.outputs.publish'
+      run: |
+        make container
+
+    - name: Log into GitHub Container Registry
+      if: steps.release.outputs.publish
+      run: echo "${{ github.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+    - name: Publish container image
+      if: steps.release.outputs.publish
+      run: |
+        set -u
+        make push-container VERSION=$RELEASE_VERSION
+
+    - name: Update version within VERSION file and compose.yaml
+      if: steps.release.outputs.publish
+      run: |
+        set -u
+        make update-version VERSION=$RELEASE_VERSION

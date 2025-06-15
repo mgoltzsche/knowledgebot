@@ -1,4 +1,5 @@
-IMAGE?=knowledgebot
+VERSION?=$(shell cat VERSION)
+IMAGE=ghcr.io/mgoltzsche/knowledgebot:$(VERSION)
 
 all: help
 
@@ -10,7 +11,10 @@ container: ## Build the container image.
 ##@ Development
 
 test: ## Run unit tests.
-	docker build --rm -t $(IMAGE) --target=test .
+	docker build --force-rm -t $(IMAGE) --target=test .
+
+lint: ## Run linter.
+	docker build --force-rm -t $(IMAGE) --target=lint .
 
 compose-up: container ## Run the compose project.
 	docker compose up
@@ -43,6 +47,21 @@ crawl-wikipedia-futurama: ## Crawl Futurama-related Wikipedia pages.
 
 render-diagrams: ## Render PNGs from PlantUML diagrams.
 	docker run --rm -v "`pwd`/docs/diagrams:/data" plantuml/plantuml:1.2025 *.puml
+
+##@ Release
+
+push-container: PLATFORM?=linux/amd64,linux/arm64/v8
+push-container: BUILDX_OUTPUT?=type=registry
+push-container: BUILDX_BUILDER?=knowledgebot-builder
+push-container: ## Push the container image.
+	@[ ! '$(VERSION)' = dev ] || (echo 'No VERSION specified!' >&2; false)
+	docker buildx inspect $(BUILDX_BUILDER) >/dev/null 2<&1 || docker buildx create --name=$(BUILDX_BUILDER) >/dev/null
+	docker buildx build --rm -t $(IMAGE) --builder=$(BUILDX_BUILDER) --output=$(BUILDX_OUTPUT) --platform=$(PLATFORM) .
+
+update-version: ## Update version in VERSION file and compose.yaml.
+	sed -Ei.bak 's!image: .*knowledgebot:.+!image: ghcr.io/mgoltzsche/knowledgebot:$(VERSION)!g' compose.yaml
+	rm -f compose.yaml.bak
+	echo "$(VERSION)" > VERSION
 
 ##@ General
 

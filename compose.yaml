@@ -1,6 +1,6 @@
 services:
   knowledgebot:
-    image: knowledgebot
+    image: ghcr.io/mgoltzsche/knowledgebot:dev
     # environment:
     #   KLB_OPENAI_URL: http://ollama:11434
     #   KLB_TOPIC: Simpsons TV Show
