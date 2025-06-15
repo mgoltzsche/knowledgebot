@@ -45,10 +45,10 @@ func newQuestionAnswerHandler(ai *qna.QuestionAnswerWorkflow) http.Handler {
 			}
 
 			if chunk.Err != nil {
-				fmt.Fprintln(w, "event: error")
+				_, _ = fmt.Fprintln(w, "event: error")
 			}
 
-			fmt.Fprintf(w, "data: %s\n\n", string(data))
+			_, _ = fmt.Fprintf(w, "data: %s\n\n", string(data))
 
 			if flusher, ok := w.(http.Flusher); ok {
 				flusher.Flush()

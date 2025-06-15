@@ -51,7 +51,7 @@ func (s *Crawler) Crawl(ctx context.Context, seedURL string) error {
 	return s.indexDocumentChunks(ctx, cancel, ch, startTime)
 }
 
-func (s *Crawler) crawl(ctx context.Context, seedURL *url.URL, ch chan<- []schema.Document) error {
+func (s *Crawler) crawl(ctx context.Context, seedURL *url.URL, ch chan<- []schema.Document) {
 	defer close(ch)
 
 	pageCounter := atomic.Uint64{}
@@ -95,13 +95,18 @@ func (s *Crawler) crawl(ctx context.Context, seedURL *url.URL, ch chan<- []schem
 	})
 
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
-		e.Request.Visit(e.Attr("href"))
+		err := e.Request.Visit(e.Attr("href"))
+		if err != nil {
+			log.Println("ERROR: failed to visit page:", err)
+		}
 	})
 
-	c.Visit(seedURL.String())
-	c.Wait()
+	err := c.Visit(seedURL.String())
+	if err != nil {
+		log.Println("ERROR: failed to crawl page:", err)
+	}
 
-	return ctx.Err()
+	c.Wait()
 }
 
 func (s *Crawler) processHTML(ctx context.Context, url *url.URL, html string, ch chan<- []schema.Document) error {
@@ -214,7 +219,7 @@ func (s *Crawler) indexDocumentChunks(ctx context.Context, cancel context.Cancel
 		return fmt.Errorf("index scraped chunks: %w", err)
 	}
 
-	elapsed := time.Now().Sub(startTime)
+	elapsed := time.Since(startTime)
 
 	log.Printf("indexed %d chunks of %d document(s) in %s", chunkCount, docCount, elapsed)
 

@@ -66,7 +66,7 @@ func init() {
 }
 
 func preRunServer(cmd *cobra.Command, args []string) error {
-	embeddingsModel := storeFactory.LLMFactory.EmbeddingModel
+	embeddingsModel := storeFactory.EmbeddingModel
 	storeFactory.LLMFactory = llmFactory
 	storeFactory.EmbeddingModel = embeddingsModel
 
@@ -99,7 +99,10 @@ func runServer(cmd *cobra.Command, args []string) error {
 
 	go func() {
 		<-ctx.Done()
-		srv.Shutdown(ctx)
+		err := srv.Shutdown(ctx)
+		if err != nil {
+			log.Println("ERROR: failed to shutdown server:", err)
+		}
 	}()
 
 	log.Println("listening on", srv.Addr)
