@@ -41,6 +41,17 @@ Future work should address these limitations and further benchmark KnowledgeBot 
 
 ## Installation
 
+### Installing a release
+
+To install a release (compose.yaml attached to a GitHub release with pre-built container image), run:
+```sh
+VERSION=<VERSION>
+curl -fsSL https://github.com/mgoltzsche/knowledgebot/releases/download/$VERSION/compose.yaml | docker compose -f - up
+```
+Please make sure to replace `<VERSION>` with a concrete version listed in the [releases page](https://github.com/mgoltzsche/knowledgebot/releases), e.g. `v0.2.1`.
+
+### Building from source
+
 Clone the repository and start the services:
 
 ```sh
@@ -67,6 +78,12 @@ make pull-models
 Depending on your internet connection the model download takes a while.
 With 100Mbit/s the download takes around 5 minutes.
 
+Alternatively, in case you installed from a release or you want to use custom models, download each model individually:
+```
+docker compose exec ollama ollama pull <MODEL>
+```
+Please make sure to replace `<MODEL>` with the name of the model you want to use.
+
 ## Usage
 
 ### Ingesting Data
@@ -85,8 +102,13 @@ To crawl a custom site:
 ```sh
 make crawl URL=https://example.com MAX_DEPTH=2 MAX_PAGES=100
 ```
-
 You can adjust `URL`, `MAX_DEPTH` and `MAX_PAGES` as needed.
+
+Alternatively, in case you installed from a release, invoke the crawler directly as follows:
+```sh
+docker compose exec knowledgebot /knowledgebot crawl "<URL>" --max-depth=<MAX_DEPTH> --max-pages=<MAX_PAGES> --url-regex="<URL_REGEX>"
+```
+Please make sure to replace `<URL>`, `<MAX_DEPTH>`, `<MAX_PAGES>` and `<URL_REGEX>` as needed.
 
 ### Web UI
 
