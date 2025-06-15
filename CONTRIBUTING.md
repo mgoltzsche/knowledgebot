@@ -34,8 +34,9 @@ When creating a feature request please answer the following questions:
 While there is no need to create an issue before creating a PR please consider discussing large changes within an issue first.
 
 When creating a PR please follow these rules:
-* Create one PR per feature.
+* Create one PR per feature or bug fix.
 * Provide one commit per PR ideally.
+* Commit messages must follow the formatting guidelines of the [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/) (since releases, versioning and changelog generation are fully automated based on that).
 * Provide a description with each PR and commit that links an issue (if any), describes the problem, how it was solved and how the solution changes the user-facing behaviour.
 * All submissions require a review.
 * All commits should be signed using PGP and a [DCO](https://en.wikipedia.org/wiki/Developer_Certificate_of_Origin). This can be done using `git commit -s -S`.
@@ -45,4 +46,4 @@ When creating a PR please follow these rules:
 
 ## Building and testing the source
 
-See [here](./README.md).
+See the [README](./README.md).
