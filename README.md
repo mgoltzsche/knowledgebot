@@ -241,6 +241,7 @@ This project is licensed under the [Apache 2.0 License](LICENSE).
 ## Contributing
 
 Contributions are welcome! Please feel free to open issues or pull requests.
+For more details, see the [contributing guidelines](./CONTRIBUTING.md).
 
 ## Contact & Support
 
