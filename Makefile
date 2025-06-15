@@ -10,7 +10,10 @@ container: ## Build the container image.
 ##@ Development
 
 test: ## Run unit tests.
-	docker build --rm -t $(IMAGE) --target=test .
+	docker build --force-rm -t $(IMAGE) --target=test .
+
+lint: ## Run linter.
+	docker build --force-rm -t $(IMAGE) --target=lint .
 
 compose-up: container ## Run the compose project.
 	docker compose up
