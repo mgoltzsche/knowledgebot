@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"time"
@@ -37,7 +37,7 @@ func CreateQdrantCollectionIfNotExist(ctx context.Context, qdrantURL, collection
 	}
 
 	if resp.StatusCode == http.StatusOK {
-		log.Printf("created qdrant collection %q", collection)
+		slog.Info("created qdrant collection " + collection)
 		return nil
 	}
 

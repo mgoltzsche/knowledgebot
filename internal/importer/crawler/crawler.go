@@ -5,7 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/url"
 	"regexp"
 	"strings"
@@ -32,7 +32,7 @@ type Crawler struct {
 }
 
 func (s *Crawler) Crawl(ctx context.Context, seedURL string) error {
-	log.Printf("crawling %s with maxDepth=%d, maxPages=%d and urlRegex=%s", seedURL, s.MaxDepth, s.MaxPages, s.URLRegex)
+	slog.Info("crawling "+seedURL, "maxDepth", s.MaxDepth, "maxPages", s.MaxPages, "urlRegex", s.URLRegex)
 
 	startTime := time.Now()
 
@@ -84,26 +84,26 @@ func (s *Crawler) crawl(ctx context.Context, seedURL *url.URL, ch chan<- []schem
 			}
 		}
 
-		log.Println("visiting", req.URL)
+		slog.Info("visiting " + req.URL.String())
 	})
 
 	c.OnResponse(func(f *colly.Response) {
 		err := s.processHTML(ctx, f.Request.URL, string(f.Body), ch)
 		if err != nil {
-			log.Println("WARNING:", err)
+			slog.Warn(err.Error())
 		}
 	})
 
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
 		err := e.Request.Visit(e.Attr("href"))
 		if err != nil {
-			log.Println("ERROR: failed to visit page:", err)
+			slog.Debug("failed to visit page: " + err.Error())
 		}
 	})
 
 	err := c.Visit(seedURL.String())
 	if err != nil {
-		log.Println("ERROR: failed to crawl page:", err)
+		slog.Warn("failed to crawl page: " + err.Error())
 	}
 
 	c.Wait()
@@ -127,7 +127,7 @@ func (s *Crawler) processHTML(ctx context.Context, url *url.URL, html string, ch
 		return fmt.Errorf("split text: %w", err)
 	}
 
-	log.Printf("scraped %d chunks from %s", len(chunks), url)
+	slog.Info(fmt.Sprintf("scraped %d chunks from %s", len(chunks), url))
 
 	docs := make([]schema.Document, 0, len(chunks))
 
@@ -221,7 +221,7 @@ func (s *Crawler) indexDocumentChunks(ctx context.Context, cancel context.Cancel
 
 	elapsed := time.Since(startTime)
 
-	log.Printf("indexed %d chunks of %d document(s) in %s", chunkCount, docCount, elapsed)
+	slog.Info(fmt.Sprintf("indexed %d chunks of %d document(s) in %s", chunkCount, docCount, elapsed))
 
 	return ctx.Err()
 }

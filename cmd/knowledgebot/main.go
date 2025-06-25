@@ -2,7 +2,8 @@ package main
 
 import (
 	"context"
-	"log"
+	"log/slog"
+	"os"
 	"os/signal"
 	"syscall"
 )
@@ -13,6 +14,7 @@ func main() {
 
 	err := rootCmd.ExecuteContext(ctx)
 	if err != nil {
-		log.Fatal("FATAL: ", err)
+		slog.Error(err.Error())
+		os.Exit(1)
 	}
 }
