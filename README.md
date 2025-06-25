@@ -177,19 +177,19 @@ Corresponding to the CLI options, the following environment variables are suppor
 
 | Name  | Default  | Description |
 | ----- | -------- | ----------- |
-| `KLB_LOG_LEVEL` | `INFO` | Log level |
 | `KLB_EMBEDDING_DIMENSIONS` | `384` | LLM embedding model dimensions |
 | `KLB_EMBEDDING_MODEL` | `all-minilm` | Embedding model to use |
 | `KLB_LISTEN` | `:8080` | Address the server should listen on |
+| `KLB_LOG_LEVEL` | `INFO` | Log level |
 | `KLB_MAX_DOCS` | `15` | Maximum number of document chunks to retrieve from qdrant |
 | `KLB_MODEL` | `qwen2.5:3b` | LLM model to use for question answering |
 | `KLB_OPENAI_KEY` |  | API key for the OpenAI LLM API |
 | `KLB_OPENAI_URL` | `http://ollama:11434` | URL pointing to the OpenAI LLM API server |
 | `KLB_QDRANT_COLLECTION` | `knowledgebot` | Qdrant collection to use |
-| `KLB_QDRANT__URL` | `http://qdrant:6333` | URL pointing to the Qdrant server |
+| `KLB_QDRANT_URL` | `http://qdrant:6333` | URL pointing to the Qdrant server |
 | `KLB_SCORE_THRESHOLD` | `0.5` | Qdrant document match score |
-| `KLB_TOPIC` | `The TV show Futurama` | Topic that is injected into the system prompt |
 | `KLB_TEMPERATURE` | `0.7` | LLM temperature |
+| `KLB_TOPIC` | `The TV show Futurama` | Topic that is injected into the system prompt |
 
 Crawler-specific environment variables:
 
