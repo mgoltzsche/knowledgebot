@@ -177,6 +177,7 @@ Corresponding to the CLI options, the following environment variables are suppor
 
 | Name  | Default  | Description |
 | ----- | -------- | ----------- |
+| `KLB_LOG_LEVEL` | `INFO` | Log level |
 | `KLB_EMBEDDING_DIMENSIONS` | `384` | LLM embedding model dimensions |
 | `KLB_EMBEDDING_MODEL` | `all-minilm` | Embedding model to use |
 | `KLB_LISTEN` | `:8080` | Address the server should listen on |
