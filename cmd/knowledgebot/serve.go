@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"log"
+	"log/slog"
 	"net"
 	"net/http"
 
@@ -101,11 +101,11 @@ func runServer(cmd *cobra.Command, args []string) error {
 		<-ctx.Done()
 		err := srv.Shutdown(ctx)
 		if err != nil {
-			log.Println("ERROR: failed to shutdown server:", err)
+			slog.Error("failed to shutdown server: " + err.Error())
 		}
 	}()
 
-	log.Println("listening on", srv.Addr)
+	slog.Info("listening on " + srv.Addr)
 
 	err := srv.ListenAndServe()
 	if err == http.ErrServerClosed {

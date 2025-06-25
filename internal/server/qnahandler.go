@@ -3,7 +3,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/mgoltzsche/knowledgebot/internal/qna"
@@ -15,7 +15,7 @@ func newQuestionAnswerHandler(ai *qna.QuestionAnswerWorkflow) http.Handler {
 		if question == "" {
 			err := req.ParseForm()
 			if err != nil {
-				log.Println("WARNING: parse form data:", err)
+				slog.Warn("parse form data: " + err.Error())
 			}
 
 			question = req.Form.Get("q")
@@ -40,7 +40,7 @@ func newQuestionAnswerHandler(ai *qna.QuestionAnswerWorkflow) http.Handler {
 
 			data, err := json.Marshal(chunk)
 			if err != nil {
-				log.Println("ERROR: failed to marshal chunk:", err)
+				slog.Error("failed to marshal chunk: " + err.Error())
 				continue
 			}
 

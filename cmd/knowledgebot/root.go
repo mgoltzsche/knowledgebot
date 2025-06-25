@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"strings"
 
@@ -21,6 +22,7 @@ var (
 )
 
 func init() {
+	rootCmd.PersistentFlags().Var(logLevelFlag("INFO"), "log-level", "set the log level")
 	rootCmd.SetFlagErrorFunc(func(cmd *cobra.Command, err error) error {
 		_ = cmd.Help()
 		return err
@@ -32,10 +34,10 @@ func Execute() error {
 }
 
 func preRunEnvVars(cmd *cobra.Command, args []string) error {
-	return parseFlagsWithEnvVars(cmd.Flags(), "KLB_")
+	return applyEnvVarsToFlags(cmd.Flags(), "KLB_")
 }
 
-func parseFlagsWithEnvVars(fs *pflag.FlagSet, envVarPrefix string) error {
+func applyEnvVarsToFlags(fs *pflag.FlagSet, envVarPrefix string) error {
 	var err error
 
 	fs.VisitAll(func(f *pflag.Flag) {
@@ -49,4 +51,35 @@ func parseFlagsWithEnvVars(fs *pflag.FlagSet, envVarPrefix string) error {
 	})
 
 	return err
+}
+
+type logLevelFlag string
+
+func (logLevelFlag) Set(s string) error {
+	var level slog.Level
+
+	switch s {
+	case "DEBUG":
+		level = slog.LevelDebug
+	case "INFO":
+		level = slog.LevelInfo
+	case "WARN":
+		level = slog.LevelWarn
+	case "ERROR":
+		level = slog.LevelError
+	default:
+		return fmt.Errorf("unsupported log level %q provided. supported log levels are DEBUG, INFO, WARN, ERROR", s)
+	}
+
+	slog.SetLogLoggerLevel(level)
+
+	return nil
+}
+
+func (f logLevelFlag) String() string {
+	return string(f)
+}
+
+func (f logLevelFlag) Type() string {
+	return "LEVEL"
 }

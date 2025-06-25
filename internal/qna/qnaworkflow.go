@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"strings"
 
 	"github.com/tmc/langchaingo/llms"
@@ -82,7 +82,7 @@ func (w *QuestionAnswerWorkflow) Answer(ctx context.Context, question string) (<
 		return nil, err
 	}
 
-	log.Println("Requesting LLM answer for prompt:\n  ", strings.ReplaceAll(prompt, "\n", "\n  "))
+	slog.Info("Requesting LLM answer for prompt:" + strings.ReplaceAll("\n"+prompt, "\n", "\n  "))
 
 	go func() {
 		defer close(ch)
@@ -124,13 +124,13 @@ func searchResultsToSourceRefs(docs []schema.Document) []SourceReference {
 	for _, doc := range docs {
 		urlKey, ok := doc.Metadata["url"].(string)
 		if !ok {
-			log.Println("WARNING: vectordb search result doc does not specify 'url' metadata key")
+			slog.Warn("vectordb search result doc does not specify 'url' metadata key")
 			continue
 		}
 
 		title, ok := doc.Metadata["title"].(string)
 		if !ok {
-			log.Println("WARNING: vectordb search result doc does not specify 'title' metadata key")
+			slog.Warn("vectordb search result doc does not specify 'title' metadata key")
 			continue
 		}
 
