@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
+	"time"
 
 	"github.com/mgoltzsche/knowledgebot/internal/qna"
 	"github.com/mgoltzsche/knowledgebot/internal/server"
@@ -90,9 +91,10 @@ func runServer(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
 	mux := http.NewServeMux()
 	srv := &http.Server{
-		Addr:        listenAddr,
-		BaseContext: func(net.Listener) context.Context { return ctx },
-		Handler:     mux,
+		Addr:              listenAddr,
+		BaseContext:       func(net.Listener) context.Context { return ctx },
+		Handler:           mux,
+		ReadHeaderTimeout: 20 * time.Second,
 	}
 
 	routes.AddRoutes(mux)
