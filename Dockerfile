@@ -2,7 +2,7 @@ FROM golang:1.24.4-alpine3.22 AS go
 
 FROM go AS linter
 RUN apk add --update --no-cache git
-ARG GOLANGCILINT_VERSION=v2.1.6
+ARG GOLANGCILINT_VERSION=v2.2.1
 RUN go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$GOLANGCILINT_VERSION
 
 FROM go AS builddeps
@@ -17,6 +17,7 @@ RUN go test ./...
 
 FROM builddeps AS lint
 COPY --from=linter /go/bin/golangci-lint /go/bin/
+COPY .golangci.yml ./
 RUN golangci-lint run ./...
 
 FROM builddeps AS build
