@@ -13,7 +13,7 @@ services:
       - ollama
       #- localai
   qdrant:
-    image: qdrant/qdrant:v1.14.1-unprivileged
+    image: qdrant/qdrant:v1.15.4-unprivileged
     ports:
       - "6333:6333"
     volumes:
