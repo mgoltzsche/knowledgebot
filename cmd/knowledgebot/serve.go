@@ -94,7 +94,7 @@ func runServer(cmd *cobra.Command, args []string) error {
 		Addr:              listenAddr,
 		BaseContext:       func(net.Listener) context.Context { return ctx },
 		Handler:           mux,
-		ReadHeaderTimeout: 20 * time.Second,
+		ReadHeaderTimeout: 7 * time.Second,
 	}
 
 	routes.AddRoutes(mux)
